@@ -44,6 +44,7 @@ paths:
                 sex:
                   type: string
 
+
   /getMovies/{userId}/{sectionId}/{algorithmId}:
     get:
       operationId: getMovies.fun1_getMovies
@@ -57,12 +58,12 @@ paths:
           description: userid of the person to get from the list
           type: integer
           required: True
-	  name: sectionId
+          - name: sectionId
           in: path
           description: section number to indicate user progress in system
           type: integer
           required: True
-	  name: algorithmId
+        - name: algorithmId
           in: path
           description: used algorithm's number for the user
           type: integer
@@ -95,17 +96,17 @@ paths:
         description: user_id of person whose ratings you want
         type: integer
         required: True
-	name: sectionId
+        - name: sectionId
         in: path
         description: section number to indicate user progress in system
         type: integer
         required: True	
-	name: movieId
+        -  name: movieId
         in: path
         description: id of movie you want ratings of
         type: integer
         required: True
-	name: ratings
+        - name: ratings
         in: path
         description: ratings of the movies in this section
         type: integer
@@ -122,149 +123,12 @@ paths:
                 rating:
                   type: integer
 
-  /getTopNRecommendation/{userId}/{sectionId}/{length}:
-    get:
-      operationId: getTopNRecommendation.fun1_topNReco
-      tags:
-      - Recommendation
-      summary: Retrieve recommendations from the dataset
-      description: Based on the previous selections of the user, generate the TopN recommendations
-      parameters:
-      - name: userId
-        in: path
-        description: user_id of person whose ratings you want
-        type: integer
-        required: True
-	name: sectionId
-        in: path
-        description: section number to indicate user progress in system
-        type: integer
-        required: True
-      - name: length
-        in: path
-        description: number of movies to return
-        type: integer
-        required: True
-      responses:
-        200:
-          description: Successfully generate the TopN recommendations for user
-          schema:
-            type: array
-            items:
-              properties:
-                item:
-                  type: integer
-                rating:
-                  type: integer
 
-  /getRSSARecommendation/{userId}/{sectionId}/{length}:
-    get:
-      operationId: getRSSARecommendation.fun1_RSSAReco
-      tags:
-      - Recommendation
-      summary: Retrieve recommendations from the dataset, generate the recommendations for the user
-      description: Based on the previous selections of the user, generate the recommendations for the user based on the condition they are in (example “Things you may hate”)
-      parameters:
-      - name: userId
-        in: path
-        description: user_id of person whose ratings you want
-        type: integer
-        required: True
-	name: sectionId
-        in: path
-        description: section number to indicate user progress in system
-        type: integer
-        required: True
-      - name: length
-        in: path
-        description: number of movies to return
-        type: integer
-        required: True
-      responses:
-        200:
-          description: Successfully generate the recommendations for user based on the condition they are in
-          schema:
-            type: array
-            items:
-              properties:
-                item:
-                  type: integer
-                rating:
-                  type: integer
+# Note 5/20: All of the endpoints for the recommendations should match the operationID
 
-  /setChoices/{userId}/{sectionId}/{listId}:
-    post:
-      operationId: setChoices.fun1_choices
-      tags:
-      - recommendation
-      summary: The database will be updated with the choices selected from the user
-      description: The database will be updated with the choices selected from the user
-      parameters:
-      - name: userId
-        in: path
-        description: user_id of person whose ratings you want
-        type: integer
-        required: True
-	name: sectionId
-        in: path
-        description: section number to indicate user progress in system
-        type: integer
-        required: True
-      - name: listId
-        in: path
-        description: distinguish which list the choices are coming from (TopN vs RSSA)
-        type: integer
-        required: True
-      responses:
-        200:
-          description: Successfully update the database with the choices selected from the user
-          schema:
-            type: array
-            items:
-              properties:
-                item:
-                  type: integer
-                rating:
-                  type: integer
-
-  /getFinalRecommendation/{userId}/{sectionId}/{length}:
+  /recommendation/topn/{userId}/{sectionId}/{length}:
     get:
-      operationId: getFinalRecommendation.fun1_getFinalRecommendation
-      tags:
-      - Final choices
-      summary: Retrieve recommendations from the dataset, generate the final RSSA recommendations for the user 
-      description: Based on the previous selections of the user, generate the final RSSA recommendations for the user based on the condition they are in (example “Things you may hate”).
-      parameters:
-      - name: userId
-        in: path
-        description: user_id of person whose ratings you want
-        type: integer
-        required: True
-	name: sectionId
-        in: path
-        description: section number to indicate user progress in system
-        type: integer
-        required: True
-      - name: length
-        in: path
-        description: number of movies to return
-        type: integer
-        required: True
-      responses:
-        200:
-          description: Successfully generate the final RSSA recommendations for user based on the condition they are in
-          schema:
-            type: array
-            items:
-              properties:
-                item:
-                  type: integer
-                rating:
-                  type: integer
-
-  /getFinalTopNRecommendation/{userId}/{sectionId}/{length}:
-    get:
-      operationId: getFinalTopNRecommendation.fun1_getFinalTopNRecommendation
+      operationId: recommendation.get_recommendations_topn
       tags:
       - Final choices
       summary: Retrieve recommendations from the dataset, generate the recommendations for the user 
@@ -275,7 +139,7 @@ paths:
         description: user_id of person whose ratings you want
         type: integer
         required: True
-	name: sectionId
+        - name: sectionId
         in: path
         description: section number to indicate user progress in system
         type: integer
@@ -297,6 +161,158 @@ paths:
                 rating:
                   type: integer
 
+
+  /recommendation/hate/{userId}/{sectionId}/{length}:
+    get:
+      operationId: recommendation.get_recommendations_hate
+      tags:
+      - Recommendation
+      summary: Retrieve recommendations from the dataset, generate the recommendations for the user
+      description: Based on the previous selections of the user, generate the recommendations for the user based on the condition they are in (example “Things you may hate”)
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+        - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: length
+        in: path
+        description: number of movies to return
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully generate the recommendations for user based on the condition they are in
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+                  
+ 
+ /recommendation/hipster/{userId}/{sectionId}/{length}:
+    get:
+      operationId: recommendation.get_recommendations_hipster
+      tags:
+      - Final choices
+      summary: Retrieve recommendations from the dataset, generate the recommendations for the user 
+      description: Based on the previous selections of the user, generate the hipster recommendations for the user 
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+        - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: length
+        in: path
+        description: number of movies to return
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully generate the final Top N recommendations for user 
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+# As the other alogorithms are added, append file 
+
+  /setChoices/{userId}/{sectionId}/{listId}:
+    post:
+      operationId: setChoices.fun1_choices
+      tags:
+      - recommendation
+      summary: The database will be updated with the choices selected from the user
+      description: The database will be updated with the choices selected from the user
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+        - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: listId
+        in: path
+        description: distinguish which list the choices are coming from (TopN vs RSSA)
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully update the database with the choices selected from the user
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+#Removed since it is not necessary. Algorithm should update when called again
+#
+#
+ /recommendation/final/{userId}/{sectionId}/{length}:
+    get:
+      operationId: recommendations.fun1_getFinalRecommendation
+      tags:
+      - Final choices
+      summary: Retrieve recommendations from the dataset, generate the final RSSA recommendations for the user 
+      description: Based on the previous selections of the user, generate the final RSSA recommendations for the user based on the condition they are in (example “Things you may hate”).
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+        - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: length
+        in: path
+        description: number of movies to return
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully generate the final RSSA recommendations for user based on the condition they are in
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+                  
+#
+
+  
   /ratings/{userId}/{sectionId}:
     post:
       operationId: ratings.fun1_ratings
@@ -310,7 +326,7 @@ paths:
         description: user_id of person whose ratings you want
         type: integer
         required: True
-	name: sectionId
+        - name: sectionId
         in: path
         description: section number to indicate user progress in system
         type: integer
@@ -340,7 +356,7 @@ paths:
         description: user_id of person whose ratings you want
         type: integer
         required: True
-	name: sectionId
+        - name: sectionId
         in: path
         description: section number to indicate user progress in system
         type: integer
