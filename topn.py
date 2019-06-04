@@ -21,10 +21,6 @@ ratings = pd.read_csv('ml-100k/u.data', sep='\t', names=['user', 'item', 'rating
 # change data type
 # ratings = ratings1.astype(int)
 
-
-
-
-
 #algo = knn.ItemItem(20)
 #algo = funksvd.FunkSVD(50)
 algo = als.BiasedMF(10)
@@ -48,10 +44,9 @@ print( "Training model takes %3.2f seconds\n" % spentTime)
 # ? extract unique users in test set
 users = test.user.unique()
 
-
-num_recommendations = 10 
-
-
+#num_recommendations = 10 
+# length = int(sys.argv[3])
+num_recommendations = int(sys.argv[3])
 
 def getRecommendations(user):
     """
@@ -74,7 +69,14 @@ def getRecommendations(user):
     return recs[recs['user'] == user], recs
 
 # user = np.array(users[0])
-user = random.choice(users)
+# user = random.choice(users)
+
+#userID = input("input an userID (1-943): ")
+#user = int(userID)
+
+user = int(sys.argv[1])
+sectionID = int(sys.argv[2])
+
 [rec, recs] = getRecommendations(user)
 '''
 #testing failed, no column name showed
@@ -93,8 +95,6 @@ np.savetxt("./results/recs_rank.csv", recsRank, delimiter=" ")
 np.savetxt("./results/recs_item.csv", recsItem, delimiter=" ")
 np.savetxt("./results/recs_score.csv", recsScore, delimiter=" ")
 """
-
-
 
 # select columns
 recColumns = rec[['item', 'score']]
