@@ -46,7 +46,7 @@ users = test.user.unique()
 
 #num_recommendations = 10 
 # length = int(sys.argv[3])
-num_recommendations = int(sys.argv[3])
+#num_recommendations = int(sys.argv[3])
 
 def getRecommendations(user,sectionID,num_recommendations):
     """
@@ -75,8 +75,8 @@ def getRecommendations(user,sectionID,num_recommendations):
 #userID = input("input an userID (1-943): ")
 #user = int(userID)
 
-user = int(sys.argv[1])
-sectionID = int(sys.argv[2])
+#user = int(sys.argv[1])
+#sectionID = int(sys.argv[2])
 
 [rec, recs] = getRecommendations(user,sectionID, num_recommendations)
 '''
