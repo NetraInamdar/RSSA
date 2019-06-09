@@ -48,7 +48,7 @@ users = test.user.unique()
 # length = int(sys.argv[3])
 num_recommendations = int(sys.argv[3])
 
-def getRecommendations(user):
+def getRecommendations(user,sectionID,num_recommendations):
     """
     Generate a recommendation for the user
     :param algo: the given algorithm
@@ -56,6 +56,7 @@ def getRecommendations(user):
     :param user: the user
     :return: recommendation
     """
+    id=sectionID
     # Generate $num_recommendations for the givenuser  
     recs = batch.recommend(algo, model, users, num_recommendations, topn.UnratedCandidates(train))
     # recs = batch.recommend(algo, users, num_recommendations, users, train, 0.5)
@@ -77,7 +78,7 @@ def getRecommendations(user):
 user = int(sys.argv[1])
 sectionID = int(sys.argv[2])
 
-[rec, recs] = getRecommendations(user)
+[rec, recs] = getRecommendations(user,sectionID, num_recommendations)
 '''
 #testing failed, no column name showed
 	print ('Column names in recs: \n')
