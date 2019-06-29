@@ -1,0 +1,310 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger ReST Article
+consumes:
+  - application/json
+produces:
+  - application/json
+
+basePath: /
+  
+# Paths supported by the server application
+paths:
+  /progress/{userId}/{sectionId}:
+    post:
+      operationId: progress.fun1_progress
+      tags:
+        - Welcome
+      summary: User will be given an overview of the study and asked to begin
+      description: Indicates user progress in the system  
+      parameters:
+        - name: userId
+          in: path
+          type: string
+          description: unique string generated at the start of the study
+          required: True
+        - name: sectionId
+          in: path
+          type: string
+          description: Indicates user progress in the system 
+          required: True
+      responses:
+        200:
+          description: Successfully indicate user progress in the application
+          schema:
+            type: array
+            items:
+              properties:
+                user_id:
+                  type: integer
+                age:
+                  type: integer
+                sex:
+                  type: string
+
+
+  /getMovies/{userId}/{sectionId}/{algorithmId}:
+    get:
+      operationId: getMovies.fun1_getMovies
+      tags:
+        - Preferences
+      summary: Retrieve recommendations from the dataset
+      description: Retrieve recommendations from the dataset for users
+      parameters:
+        - name: userId
+          in: path
+          description: userid of the person to get from the list
+          type: integer
+          required: True
+        - name: sectionId
+          in: path
+          description: section number to indicate user progress in system
+          type: integer
+          required: True
+        - name: algorithmId
+          in: path
+          description: used algorithm's number for the user
+          type: integer
+          required: True
+      responses:
+        200:
+          description: Successfully retrieve recommendations from the dataset
+          schema:
+            type: array
+            items:
+              properties:
+                user_id:
+                  type: integer
+                age:
+                  type: integer
+                sex:
+                  type: string
+
+    
+  /preference/{userId}/{sectionId}/{movieId}/{ratings}:
+    post:
+      operationId: preference.fun1_preference
+      tags:
+      - preference
+      summary: Update the database with user choices
+      description: Update the database with user choices
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: movieId
+        in: path
+        description: id of movie you want ratings of
+        type: integer
+        required: True
+      - name: ratings
+        in: path
+        description: ratings of the movies in this section
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully update the database with user choices
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+# Note 5/20: All of the endpoints for the recommendations should match the operationID
+
+  /recommendation/new_topn/{userId}/{sectionId}/{length}:
+    get:
+      operationId: new_topn.get_topn
+      tags:
+      - Final choices
+      summary: Retrieve recommendations from the dataset, generate the top n recommendations for the user 
+      description: Based on the previous selections of the user, generate the final Top N recommendations for the user 
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: length
+        in: path
+        description: number of movies to return
+        type: integer
+        required: True
+        
+      responses:
+        200:
+          description: Successfully generate the final Top N recommendations for user 
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+  
+ 
+
+
+# As the other alogorithms are added, append file 
+
+  /setChoices/{userId}/{sectionId}/{listId}:
+    post:
+      operationId: setChoices.fun1_choices
+      tags:
+      - recommendation
+      summary: The database will be updated with the choices selected from the user
+      description: The database will be updated with the choices selected from the user
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: listId
+        in: path
+        description: distinguish which list the choices are coming from (TopN vs RSSA)
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully update the database with the choices selected from the user
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+#Removed since it is not necessary. Algorithm should update when called again
+#
+#
+  /recommendation/final/{userId}/{sectionId}/{length}:
+    get:
+      operationId: recommendations.fun1_getFinalRecommendation
+      tags:
+      - Final choices
+      summary: Retrieve recommendations from the dataset, generate the final RSSA recommendations for the user 
+      description: Based on the previous selections of the user, generate the final RSSA recommendations for the user based on the condition they are in (example “Things you may hate”).
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      - name: length
+        in: path
+        description: number of movies to return
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully generate the final RSSA recommendations for user based on the condition they are in
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+                  
+#
+
+  
+  /ratings/{userId}/{sectionId}:
+    post:
+      operationId: ratings.fun1_ratings
+      tags:
+      - Ratings
+      summary: The database will be updated with the ratings of the movies from the user 
+      description: The database will be updated with the ratings of the movies from the user
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully update the database with the ratings of the movies from the user
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+  /surveyResponse/{userId}/{sectionId}:
+    post:
+      operationId: surveyResponse.fun1_survey
+      tags:
+      - Survey Response
+      summary: The database will be updated with the survey responses from the user
+      description: The database will be updated with the survey responses from the user
+      parameters:
+      - name: userId
+        in: path
+        description: user_id of person whose ratings you want
+        type: integer
+        required: True
+      - name: sectionId
+        in: path
+        description: section number to indicate user progress in system
+        type: integer
+        required: True
+      responses:
+        200:
+          description: Successfully update the database with the ratings of the movies from the user
+          schema:
+            type: array
+            items:
+              properties:
+                item:
+                  type: integer
+                rating:
+                  type: integer
+
+
+
