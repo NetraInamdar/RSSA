@@ -8,6 +8,9 @@ from lenskit.algorithms import item_knn as knn
 import random
 import time
 
+from flask import make_response, abort, jsonify
+import sys
+
 '''
 get topN basd on MF
 '''
@@ -41,14 +44,15 @@ spentTime = time.time() - startTime
 print( "Training model takes %3.2f seconds\n" % spentTime)
 	# training model takes time!!!
 
-# ? extract unique users in test set
-users = test.user.unique()
+# extract unique users in test set
+# users = test.user.unique()
 
-#num_recommendations = 10 
+users = ratings.user.unique()
+
 # length = int(sys.argv[3])
-#num_recommendations = int(sys.argv[3])
+num_recommendations = int(sys.argv[3])
 
-def getRecommendations(user,sectionID,num_recommendations):
+def getRecommendations(user):
     """
     Generate a recommendation for the user
     :param algo: the given algorithm
@@ -56,7 +60,6 @@ def getRecommendations(user,sectionID,num_recommendations):
     :param user: the user
     :return: recommendation
     """
-    id=sectionID
     # Generate $num_recommendations for the givenuser  
     recs = batch.recommend(algo, model, users, num_recommendations, topn.UnratedCandidates(train))
     # recs = batch.recommend(algo, users, num_recommendations, users, train, 0.5)
@@ -75,46 +78,32 @@ def getRecommendations(user,sectionID,num_recommendations):
 #userID = input("input an userID (1-943): ")
 #user = int(userID)
 
-#user = int(sys.argv[1])
-#sectionID = int(sys.argv[2])
+user = int(sys.argv[1])
+sectionID = int(sys.argv[2])
 
-[rec, recs] = getRecommendations(user,sectionID, num_recommendations)
-'''
-#testing failed, no column name showed
-	print ('Column names in recs: \n')
-	recs.columns
-	ratings.columns
-'''
 
-"""
-recsUser = recs['user']
-recsRank = recs['rank']
-recsItem = recs['item']
-recsScore = recs['score']
-np.savetxt("./results/recs_user.csv", recsUser, delimiter=" ")
-np.savetxt("./results/recs_rank.csv", recsRank, delimiter=" ")
-np.savetxt("./results/recs_item.csv", recsItem, delimiter=" ")
-np.savetxt("./results/recs_score.csv", recsScore, delimiter=" ")
-"""
-
-# select columns
-recColumns = rec[['item', 'score']]
-# np.savetxt("./results/recColumns.csv", recColumns, delimiter=" ")
-# select row (normally not needed)
-# print (recColumns.values)
-# df = pd.DataFrame(recColumns)
-
-print("For userID:", user)
-print("   Top-N items: ")
-print("%20s%20s" % ("itemID", "Score"))
-for index, row in recColumns.iterrows():
-	print ("%20.0f%20.2f" % (row[0], row[1]))
-'''
-rowSeries = recColumns.iloc[0:num_recommendations]
-	#Selecting data by row numbers (.iloc)
-item = rowSeries.values[0]
-score = rowSeries.values[1]
-print('\t', item, end = "\t")
-print(score)
-#print(type(item))
-'''
+def get_topn(user):
+	[rec, recs] = getRecommendations(user)
+	# select columns
+	if not rec.empty:
+		recColumns = rec[['item', 'score']]
+		# np.savetxt("./results/recColumns.csv", recColumns, delimiter=" ")
+		# select row (normally not needed)
+		# print (recColumns.values)
+		# df = pd.DataFrame(recColumns)
+		recColumns_dict = recColumns.to_dict(orient="records")
+		recommendations = []
+		for entry in recColumns_dict:
+			recommendations.append({
+				"item": int(entry['item']),
+				"score": int(entry['score'])
+			})
+	else:
+		abort(
+			404, "No topN recommendations for user with user_id {user_id}".format(user_id = user_id)
+		)
+		
+	return recommendations
+	
+#result = get_topn(user)
+#print (result)
