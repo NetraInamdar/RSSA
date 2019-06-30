@@ -38,7 +38,7 @@ for (trainSet, testSet) in splits:
 
 print(1)
 # train model
-model = algo.fit(train)
+model = algo.fit(train)  # changed algo.train() to algo.fit()
 
 spentTime = time.time() - startTime
 print( "Training model takes %3.2f seconds\n" % spentTime)
@@ -50,15 +50,17 @@ print( "Training model takes %3.2f seconds\n" % spentTime)
 users = ratings.user.unique()
 
 # length = int(sys.argv[3])
-num_recommendations = 10
+num_recommendations = 10  # hard coded num of recommendations to 10
 
 
-def get_topn(user,num_recommendations=10):
+def get_topn(user,num_recommendations=10): #added argument num_recommendations=10
 
     #algo = algoKNN
     #model = modelKNN
 
-    recs = batch.recommend(algo, users,num_recommendations, topn.UnratedCandidates(train), nprocs=None)
+
+    # merged the code for get_topn and getRecommendaions into one function:
+    recs = batch.recommend(algo, users,num_recommendations, topn.UnratedCandidates(train), nprocs=None)  # changed arguments for batch.recommend
     recs = recs[recs['user'] == user]
     if not recs.empty:
         # select colums
@@ -73,6 +75,6 @@ def get_topn(user,num_recommendations=10):
     # otherwise, nope, not found
     else:
         abort(
-            404, "No ratings for user with user_id  {user_id} ".format(user_id=user)
+            404, "No ratings for user with user_id  {user_id} ".format(user_id=user)  #user_id=user_id was changed to user_id=user
         )
     return recommendations
