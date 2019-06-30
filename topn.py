@@ -38,7 +38,7 @@ for (trainSet, testSet) in splits:
 
 print(1)
 # train model
-model = algo.train(train)
+model = algo.fit(train)
 
 spentTime = time.time() - startTime
 print( "Training model takes %3.2f seconds\n" % spentTime)
@@ -50,60 +50,29 @@ print( "Training model takes %3.2f seconds\n" % spentTime)
 users = ratings.user.unique()
 
 # length = int(sys.argv[3])
-num_recommendations = int(sys.argv[3])
-
-def getRecommendations(user):
-    """
-    Generate a recommendation for the user
-    :param algo: the given algorithm
-    :param model: the given trained model
-    :param user: the user
-    :return: recommendation
-    """
-    # Generate $num_recommendations for the givenuser  
-    recs = batch.recommend(algo, model, users, num_recommendations, topn.UnratedCandidates(train))
-    # recs = batch.recommend(algo, users, num_recommendations, users, train, 0.5)
-	## Jan. 2019: 
-		# https://lkpy.readthedocs.io/en/latest/batch.html?highlight=batch
-		# ? topn.UnratedCandidates(train)
-		# generate recs topn for all input users
-		# batch.recommend returns dataframe [user, rank, item, score], also possibly others?
-		
-    np.savetxt("./results/recs.csv", recs, delimiter=" ")
-    return recs[recs['user'] == user], recs
-
-# user = np.array(users[0])
-# user = random.choice(users)
-
-#userID = input("input an userID (1-943): ")
-#user = int(userID)
-
-user = int(sys.argv[1])
-sectionID = int(sys.argv[2])
+num_recommendations = 10
 
 
-def get_topn(user):
-	[rec, recs] = getRecommendations(user)
-	# select columns
-	if not rec.empty:
-		recColumns = rec[['item', 'score']]
-		# np.savetxt("./results/recColumns.csv", recColumns, delimiter=" ")
-		# select row (normally not needed)
-		# print (recColumns.values)
-		# df = pd.DataFrame(recColumns)
-		recColumns_dict = recColumns.to_dict(orient="records")
-		recommendations = []
-		for entry in recColumns_dict:
-			recommendations.append({
-				"item": int(entry['item']),
-				"score": int(entry['score'])
-			})
-	else:
-		abort(
-			404, "No topN recommendations for user with user_id {user_id}".format(user_id = user_id)
-		)
-		
-	return recommendations
-	
-#result = get_topn(user)
-#print (result)
+def get_topn(user,num_recommendations=10):
+
+    #algo = algoKNN
+    #model = modelKNN
+
+    recs = batch.recommend(algo, users,num_recommendations, topn.UnratedCandidates(train), nprocs=None)
+    recs = recs[recs['user'] == user]
+    if not recs.empty:
+        # select colums
+        rows = recs[['item', 'score']]
+        rows_dict = rows.to_dict(orient="records")
+        recommendations = []
+        for entry in rows_dict:
+            recommendations.append({
+                "item": int(entry['item']),
+                "score": int(entry["score"])
+            })
+    # otherwise, nope, not found
+    else:
+        abort(
+            404, "No ratings for user with user_id  {user_id} ".format(user_id=user)
+        )
+    return recommendations
