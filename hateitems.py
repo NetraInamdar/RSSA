@@ -40,32 +40,32 @@ mergeItemMeans = pd.merge(predictions, itemMeans, how = 'left', on = ['item'])
 
 #np.savetxt("./results/mergeItemMeans.csv", mergeItemMeans, delimiter=" ")
 
-def hateItems(userID, numRec, mergedData):
-	userMergedData = mergedData[mergedData['user'] == userID].copy()
+def hateItems(userID, num_recommendations=10):
+	userMergedData = mergeItemMeans[mergeItemMeans['user'] == userID].copy()
 	userMergedData['diff'] = userMergedData['mean'] - userMergedData['prediction']
 		# use .copy() to copy data instead of reference/indexing view, to avoid SettingWithCopyWarning
-	# print(mergedData.head(20))	
+	# print(mergeItemMeans.head(20))	
 	## userMergedData.columns = [['user', 'item', 'prediction', 'rating', 'timestamp', 'mean', 'diff']]
 	sortForUser = userMergedData.sort_values(by='diff', ascending = False)
 	# filtered_sortForUser = sortForUser[sortForUser['rating'].notnull()]
 	filtered_sortForUser = sortForUser[sortForUser['rating'].isnull()]
 		# filter out the items with actual observations
-	print(filtered_sortForUser.head(20))
-	
-	return filtered_sortForUser.head(numRec)
+	## change codes for swagger	
+	recs = filtered_sortForUser.head(num_recommendations)
+	if not recs.empty:
+		# select colums
+		rows = recs[['item', 'prediction']]
+		rows_dict = rows.to_dict(orient="records")
+		recommendations = []
+		for entry in rows_dict:
+			recommendations.append({
+				"item": int(entry['item']),
+				"score": float(entry["prediction"])
+			})
+	# otherwise, nope, not found
+	else:
+		abort(
+			404, "No ratings for user with user_id	{user_id} ".format(user_id=userID)	#user_id=user_id was changed to user_id=userID
+		)
+	return recommendations
 
-	
-num_recommendations = 10
-user = random.choice(users)
-hateItemsForTheUser = hateItems(user, num_recommendations, mergeItemMeans)
-
-#sortedHateItemsForTheUser = hateItemsForTheUser.sort_values(by = 'prediction', ascending = False)
-
-recHateItems = hateItemsForTheUser[['item', 'prediction', 'diff']]
-#recHateItems = sortedHateItemsForTheUser[['item', 'prediction']]
-
-print("For userID:", user)
-print("   Things we think you will hate: ")
-print("%20s%20s%28s" % ("itemID", "score", "deviateFromMeanPredictions"))
-for index, row in recHateItems.iterrows():
-	print ("%20.0f%20.2f%28.3f" % (row[0], row[1], row[2]))
