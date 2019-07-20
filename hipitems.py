@@ -30,8 +30,8 @@ def ratedItemCount(countRatings, ratings):
 itemCounts = ratedItemCount(countRatings, ratings)
 mergeItemCounts = pd.merge(predictions, itemCounts, how = 'left', on = ['item'])
 
-def hipItems(userID, numRec, mergedData):
-	userMergedData = mergedData[mergedData['user'] == userID]
+def hipItems(userID, num_recommendations = 10):
+	userMergedData = mergeItemCounts[mergeItemCounts['user'] == userID]
 	filtered_userMergedData = userMergedData[userMergedData['rating'].isnull()]
 		# filter out the items with observations
 	
@@ -44,19 +44,21 @@ def hipItems(userID, numRec, mergedData):
 	# print(topNNfiltered_userMergedData.head(10))
 	
 	filtered_sortByCount = topNNfiltered_userMergedData.sort_values(by='count', ascending = True)
-	print(filtered_sortByCount.head(10))
-	return filtered_sortByCount.head(numRec)
-
-	
-num_recommendations = 10
-user = random.choice(users)
-novelItemsForTheUser = hipItems(user, num_recommendations, mergeItemCounts)
-#sortedNovelItemsForTheUser = novelItemsForTheUser.sort_values(by = 'prediction', ascending = False)
-
-recHateItems = novelItemsForTheUser[['item', 'prediction', 'count', 'ranking']]
-#recHateItems = sortedNovelItemsForTheUser[['item', 'prediction']]
-print("For userID:", user)
-print("   Things you will be among the first to try: ")
-print("%20s%20s%28s%20s" % ("itemID", "score", "ratingCounts", "rankingByScore"))
-for index, row in recHateItems.iterrows():
-	print ("%20.0f%20.2f%28d%20d" % (row[0], row[1], row[2], row[3]))
+	## change codes for swagger
+	recs = filtered_sortByCount.head(num_recommendations)
+	if not recs.empty:
+		# select colums
+		rows = recs[['item', 'prediction']]
+		rows_dict = rows.to_dict(orient="records")
+		recommendations = []
+		for entry in rows_dict:
+			recommendations.append({
+				"item": int(entry['item']),
+				"score": float(entry["prediction"])
+			})
+	# otherwise, nope, not found
+	else:
+		abort(
+			404, "No ratings for user with user_id	{user_id} ".format(user_id=userID)	#user_id=user_id was changed to user_id=userID
+		)
+	return recommendations
